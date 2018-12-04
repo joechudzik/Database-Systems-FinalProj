@@ -1,0 +1,50 @@
+package com.example.demo;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.demo.domain.Book;
+import com.example.demo.service.BookService;
+
+@Controller
+public class LibraryController {
+	
+	@Autowired
+	BookService bookService;
+	
+	@GetMapping("/books")
+	public String getBooks(Model model) {
+		System.out.println("inside /books");
+		List<Book> bookList = new ArrayList<Book>();
+		bookList = bookService.getBookList();
+		model.addAttribute("bookList", bookList);
+		return "bookLanding";
+	}
+	
+	@GetMapping("/editBook")
+	public String editBook(@PathVariable int bookid, @ModelAttribute Book book, Model model) {
+		book = new Book();
+		book.setBookID(bookid);
+		System.out.println("before getBook"+book);
+		book = bookService.getBook(book);
+		System.out.println("after getBook"+book);
+		model.addAttribute("book", book);
+		return "editBook";
+	}
+	
+	@RequestMapping(value = "/updateBook", method = RequestMethod.POST)
+	public String updateBook(@ModelAttribute Book book, Model model) {
+		bookService.updateBook(book);
+		model.addAttribute("message", "success. book updated.");
+		return "editBook";
+	}
+}
